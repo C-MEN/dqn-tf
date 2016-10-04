@@ -2,8 +2,9 @@ import os
 import time
 import random
 import numpy as np
-from tqdm import tqdm
 import tensorflow as tf
+from functools import reduce
+from tqdm import tqdm
 
 from .base import BaseModel
 from .history import History
@@ -80,8 +81,8 @@ class Agent(BaseModel):
           except:
             max_ep_reward, min_ep_reward, avg_ep_reward = 0, 0, 0
 
-          print '\navg_r: %.4f, avg_l: %.6f, avg_q: %3.6f, avg_ep_r: %.4f, max_ep_r: %.4f, min_ep_r: %.4f, # game: %d' \
-              % (avg_reward, avg_loss, avg_q, avg_ep_reward, max_ep_reward, min_ep_reward, num_game)
+          print('\navg_r: %.4f, avg_l: %.6f, avg_q: %3.6f, avg_ep_r: %.4f, max_ep_r: %.4f, min_ep_r: %.4f, # game: %d' \
+              % (avg_reward, avg_loss, avg_q, avg_ep_reward, max_ep_reward, min_ep_reward, num_game))
 
           if max_avg_ep_reward * 0.9 <= avg_ep_reward:
             self.step_assign_op.eval({self.step_input: self.step + 1})
@@ -223,7 +224,7 @@ class Agent(BaseModel):
 
       q_summary = []
       avg_q = tf.reduce_mean(self.q, 0)
-      for idx in xrange(self.env.action_size):
+      for idx in range(self.env.action_size):
         q_summary.append(tf.histogram_summary('q/%s' % idx, avg_q[idx]))
       self.q_summary = tf.merge_summary(q_summary, 'q_summary')
 
@@ -373,7 +374,7 @@ class Agent(BaseModel):
       self.env.env.monitor.start(gym_dir)
 
     best_reward, best_idx = 0, 0
-    for idx in xrange(n_episode):
+    for idx in range(n_episode):
       screen, reward, action, terminal = self.env.new_random_game()
       current_reward = 0
 
@@ -396,9 +397,9 @@ class Agent(BaseModel):
         best_reward = current_reward
         best_idx = idx
 
-      print "="*30
-      print " [%d] Best reward : %d" % (best_idx, best_reward)
-      print "="*30
+      print("="*30)
+      print(" [%d] Best reward : %d" % (best_idx, best_reward))
+      print("="*30)
 
     if not self.display:
       self.env.env.monitor.close()

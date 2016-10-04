@@ -46,7 +46,7 @@ class DQNConfig(AgentConfig, EnvironmentConfig):
 
 class M1(DQNConfig):
   backend = 'tf'
-  env_type = 'detail'
+  env_type = 'simple'
   action_repeat = 1
 
 def get_config(FLAGS):
