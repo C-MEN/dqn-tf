@@ -1,5 +1,5 @@
 import time
-import cPickle
+import pickle
 import tensorflow as tf
 
 def timeit(f):
@@ -18,13 +18,13 @@ def get_time():
 @timeit
 def save_pkl(obj, path):
   with open(path, 'w') as f:
-    cPickle.dump(obj, f)
+    pickle.dump(obj, f)
     print("  [*] save %s" % path)
 
 @timeit
 def load_pkl(path):
   with open(path) as f:
-    obj = cPickle.load(f)
+    obj = pickle.load(f)
     print("  [*] load %s" % path)
     return obj
 
