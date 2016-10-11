@@ -16,19 +16,6 @@ def get_time():
   return time.strftime("%Y-%m-%d_%H:%M:%S", time.gmtime())
 
 @timeit
-def save_pkl(obj, path):
-  with open(path, 'w') as f:
-    pickle.dump(obj, f)
-    print("  [*] save %s" % path)
-
-@timeit
-def load_pkl(path):
-  with open(path) as f:
-    obj = pickle.load(f)
-    print("  [*] load %s" % path)
-    return obj
-
-@timeit
 def save_npy(obj, path):
   np.save(path, obj)
   print("  [*] save %s" % path)
