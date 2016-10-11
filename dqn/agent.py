@@ -10,7 +10,7 @@ from .base import BaseModel
 from .history import History
 from .ops import linear, conv2d
 from .replay_memory import ReplayMemory
-from utils import get_time, save_pkl, load_pkl
+from utils import get_time
 
 class Agent(BaseModel):
   def __init__(self, config, environment, sess):
@@ -30,7 +30,7 @@ class Agent(BaseModel):
     self.build_dqn()
 
   def train(self):
-    start_step = self.step_op.eval()
+    start_step = self.step_op.eval(session=self.sess)
     start_time = time.time()
 
     num_game, self.update_count, ep_reward = 0, 0, 0.
@@ -39,11 +39,10 @@ class Agent(BaseModel):
     ep_rewards, actions = [], []
 
     screen, reward, action, terminal = self.env.new_random_game()
-
     for _ in range(self.history_length):
       self.history.add(screen)
 
-    for self.step in tqdm(range(start_step, self.max_step), ncols=70, initial=start_step):
+    for self.step in tqdm(range(start_step, self.max_step), ncols=72, initial=start_step):
       if self.step == self.learn_start:
         num_game, self.update_count, ep_reward = 0, 0, 0.
         total_reward, self.total_loss, self.total_q = 0., 0., 0.
@@ -334,27 +333,6 @@ class Agent(BaseModel):
   def update_target_q_network(self):
     for name in self.w.keys():
       self.t_w_assign_op[name].eval({self.t_w_input[name]: self.w[name].eval()})
-
-  def save_weight_to_pkl(self):
-    if not os.path.exists(self.weight_dir):
-      os.makedirs(self.weight_dir)
-
-    for name in self.w.keys():
-      save_pkl(self.w[name].eval(), os.path.join(self.weight_dir, "%s.pkl" % name))
-
-  def load_weight_from_pkl(self, cpu_mode=False):
-    with tf.variable_scope('load_pred_from_pkl'):
-      self.w_input = {}
-      self.w_assign_op = {}
-
-      for name in self.w.keys():
-        self.w_input[name] = tf.placeholder('float32', self.w[name].get_shape().as_list(), name=name)
-        self.w_assign_op[name] = self.w[name].assign(self.w_input[name])
-
-    for name in self.w.keys():
-      self.w_assign_op[name].eval({self.w_input[name]: load_pkl(os.path.join(self.weight_dir, "%s.pkl" % name))})
-
-    self.update_target_q_network()
 
   def inject_summary(self, tag_dict, step):
     summary_str_lists = self.sess.run([self.summary_ops[tag] for tag in tag_dict.keys()], {
