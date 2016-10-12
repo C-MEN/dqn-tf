@@ -1,7 +1,9 @@
-import cv2
 import gym
 import random
 import numpy as np
+from skimage.transform import resize
+from skimage.color import rgb2gray
+
 
 class Environment(object):
   def __init__(self, config):
@@ -38,10 +40,9 @@ class Environment(object):
     action = self.env.action_space.sample()
     self._step(action)
 
-  @ property
+  @property
   def screen(self):
-    return cv2.resize(cv2.cvtColor(self._screen, cv2.COLOR_RGB2GRAY)/255., self.dims)
-    #return cv2.resize(cv2.cvtColor(self._screen, cv2.COLOR_BGR2YCR_CB)/255., self.dims)[:,:,0]
+    return resize(rgb2gray(self._screen) / 255.0, self.dims)
 
   @property
   def action_size(self):
