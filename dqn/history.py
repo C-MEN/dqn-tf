@@ -7,8 +7,7 @@ class History:
     batch_size, history_length, screen_height, screen_width = \
         config.batch_size, config.history_length, config.screen_height, config.screen_width
 
-    self.history = np.zeros(
-        [history_length, screen_height, screen_width], dtype=np.float32)
+    self.history = np.zeros([history_length, screen_height, screen_width], dtype=np.float32)
 
   def add(self, screen):
     self.history[:-1] = self.history[1:]
