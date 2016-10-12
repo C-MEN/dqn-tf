@@ -1,15 +1,8 @@
 import tensorflow as tf
-from tensorflow.contrib.layers.python.layers import initializers
 
-def conv2d(x,
-           output_dim,
-           kernel_size,
-           stride,
-           initializer=tf.contrib.layers.xavier_initializer(),
-           activation_fn=tf.nn.relu,
-           data_format='NHWC',
-           padding='VALID',
-           name='conv2d'):
+
+def conv2d(x, output_dim, kernel_size, stride, initializer=None,
+           activation_fn=tf.nn.relu, data_format='NHWC', padding='VALID', name='conv2d'):
   with tf.variable_scope(name):
     if data_format == 'NCHW':
       stride = [1, 1, stride[0], stride[1]]
