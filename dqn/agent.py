@@ -6,11 +6,15 @@ import tensorflow as tf
 from functools import reduce
 from tqdm import tqdm
 
-from .base import BaseModel
-from .history import History
-from .ops import linear, conv2d
-from .replay_memory import ReplayMemory
-from utils import get_time
+from base import BaseModel
+from history import History
+from ops import linear, conv2d
+from replay_memory import ReplayMemory
+
+
+def get_time():
+  return time.strftime("%Y-%m-%d_%H:%M:%S", time.gmtime())
+
 
 class Agent(BaseModel):
   def __init__(self, config, environment, sess):
@@ -30,7 +34,7 @@ class Agent(BaseModel):
     self.build_dqn()
 
   def train(self):
-    start_step = self.step_op.eval(session=self.sess)
+    start_step = self.step_op.eval()
     start_time = time.time()
 
     num_game, self.update_count, ep_reward = 0, 0, 0.
@@ -176,7 +180,7 @@ class Agent(BaseModel):
     self.w = {}
     self.t_w = {}
 
-    #initializer = tf.contrib.layers.xavier_initializer()
+    # initializer = tf.contrib.layers.xavier_initializer()
     initializer = tf.truncated_normal_initializer(0, 0.02)
     activation_fn = tf.nn.relu
 
@@ -213,8 +217,8 @@ class Agent(BaseModel):
           linear(self.adv_hid, self.env.action_size, name='adv_out')
 
         # Average Dueling
-        self.q = self.value + (self.advantage - 
-          tf.reduce_mean(self.advantage, reduction_indices=1, keep_dims=True))
+        self.q = self.value + (self.advantage -
+                               tf.reduce_mean(self.advantage, reduction_indices=1, keep_dims=True))
       else:
         self.l4, self.w['l4_w'], self.w['l4_b'] = linear(self.l3_flat, 512, activation_fn=activation_fn, name='l4')
         self.q, self.w['q_w'], self.w['q_b'] = linear(self.l4, self.env.action_size, name='q')
