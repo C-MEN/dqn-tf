@@ -1,11 +1,7 @@
-"""Code from https://github.com/tambetm/simple_dqn/blob/master/src/replay_memory.py"""
-
 import os
 import random
-import logging
 import numpy as np
 
-from utils import save_npy, load_npy
 
 class ReplayMemory:
   def __init__(self, config, model_dir):
@@ -89,10 +85,10 @@ class ReplayMemory:
     for idx, (name, array) in enumerate(
         zip(['actions', 'rewards', 'screens', 'terminals', 'prestates', 'poststates'],
             [self.actions, self.rewards, self.screens, self.terminals, self.prestates, self.poststates])):
-      save_npy(array, os.path.join(self.model_dir, name))
+      np.save(array, os.path.join(self.model_dir, name))
 
   def load(self):
     for idx, (name, array) in enumerate(
         zip(['actions', 'rewards', 'screens', 'terminals', 'prestates', 'poststates'],
             [self.actions, self.rewards, self.screens, self.terminals, self.prestates, self.poststates])):
-      array = load_npy(os.path.join(self.model_dir, name))
+      array = np.load(os.path.join(self.model_dir, name))
