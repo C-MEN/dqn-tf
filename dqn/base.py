@@ -1,7 +1,6 @@
 import os
 import pprint
 import inspect
-
 import tensorflow as tf
 
 pp = pprint.PrettyPrinter().pprint
