@@ -18,7 +18,7 @@ flags.DEFINE_integer('action_repeat', 4, 'The number of action to be repeated')
 
 # Etc
 flags.DEFINE_boolean('use_gpu', True, 'Whether to use gpu or not')
-flags.DEFINE_string('gpu_fraction', '1/1', 'idx / # of gpu fraction e.g. 1/3, 2/3, 3/3')
+flags.DEFINE_string('gpu_fraction', '1/1', 'fraction of GPU memory to allocate')
 flags.DEFINE_boolean('display', False, 'Whether to do display the game screen or not')
 flags.DEFINE_boolean('is_train', True, 'Whether to do training or testing')
 flags.DEFINE_integer('random_seed', 123, 'Value of random seed')
@@ -29,38 +29,41 @@ FLAGS = flags.FLAGS
 tf.set_random_seed(FLAGS.random_seed)
 random.seed(FLAGS.random_seed)
 
-def calc_gpu_fraction(fraction_string):
-  num, denom = fraction_string.split('/')
-  num, denom = float(num), float(denom)
 
-  fraction = num / denom
-  print(" [*] GPU : %.4f" % fraction)
-  return fraction
+def calc_gpu_fraction(fraction_string):
+    num, denom = fraction_string.split('/')
+    num, denom = float(num), float(denom)
+
+    fraction = num / denom
+    print(" [*] GPU : %.4f" % fraction)
+    return fraction
+
 
 def main(_):
-  tf_config = None
-  if FLAGS.gpu_fraction != '1/1':
-    gpu_fraction = calc_gpu_fraction(FLAGS.gpu_fraction)
-    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction)
-    tf_config = tf.ConfigProto(gpu_options=gpu_options)
+    tf_config = None
+    if FLAGS.gpu_fraction != '1/1':
+        gpu_fraction = calc_gpu_fraction(FLAGS.gpu_fraction)
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction)
+        tf_config = tf.ConfigProto(gpu_options=gpu_options)
 
-  with tf.Session(config=tf_config) as sess:
-    config = get_config(FLAGS) or FLAGS
+    with tf.Session(config=tf_config) as sess:
+        config = get_config(FLAGS) or FLAGS
 
-    if config.env_type == 'simple':
-      env = SimpleGymEnvironment(config)
-    else:
-      env = GymEnvironment(config)
+        if config.env_type == 'simple':
+            env = SimpleGymEnvironment(config)
+        else:
+            env = GymEnvironment(config)
 
-    if not FLAGS.use_gpu:
-      config.cnn_format = 'NHWC'
+        if not FLAGS.use_gpu:
+            config.cnn_format = 'NHWC'
 
-    agent = Agent(config, env, sess)
+        agent = Agent(config, env, sess)
 
-    if FLAGS.is_train:
-      agent.train()
-    else:
-      agent.play()
+        if FLAGS.is_train:
+            agent.train()
+        else:
+            agent.play()
+
 
 if __name__ == '__main__':
-  tf.app.run()
+    tf.app.run()

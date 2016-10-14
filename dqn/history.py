@@ -1,23 +1,29 @@
 import numpy as np
 
+
 class History:
-  def __init__(self, config):
-    self.cnn_format = config.cnn_format
+    """
+    This class represents a single state. It keeps a stack of video game frames.
+    """
 
-    batch_size, history_length, screen_height, screen_width = \
-        config.batch_size, config.history_length, config.screen_height, config.screen_width
+    def __init__(self, config):
+        self.cnn_format = config.cnn_format
 
-    self.history = np.zeros([history_length, screen_height, screen_width], dtype=np.float32)
+        batch_size, history_length = config.batch_size, config.history_length
+        screen_height, screen_width = config.screen_height, config.screen_width
 
-  def add(self, screen):
-    self.history[:-1] = self.history[1:]
-    self.history[-1] = screen
+        self.history = np.zeros(
+            [history_length, screen_height, screen_width], dtype=np.float32)
 
-  def reset(self):
-    self.history *= 0
+    def add(self, screen):
+        self.history[:-1] = self.history[1:]
+        self.history[-1] = screen
 
-  def get(self):
-    if self.cnn_format == 'NHWC':
-      return np.transpose(self.history, (1, 2, 0))
-    else:
-      return self.history
+    def reset(self):
+        self.history *= 0
+
+    def get(self):
+        if self.cnn_format == 'NHWC':
+            return np.transpose(self.history, (1, 2, 0))
+        else:
+            return self.history
