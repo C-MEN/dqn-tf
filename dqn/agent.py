@@ -427,4 +427,4 @@ class Agent(BaseModel):
         if super(Agent, self).load_model():
             # Only try to load the replay memory if we successfully loaded
             # a checkpoint file.
-            self.history.load()
+            self.memory.load()
