@@ -421,7 +421,7 @@ class Agent(BaseModel):
 
     def save_model(self, step=None):
         super(Agent, self).save_model(step)
-        self.history.save()
+        self.memory.save()
 
     def load_model(self):
         if super(Agent, self).load_model():
