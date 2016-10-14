@@ -47,7 +47,9 @@ class BaseModel(object):
             print("Loaded %s." %(chkpt.model_checkpoint_path))
             return True
         else:
-            print("Failed to load %s." % (chkpt.model_checkpoint_path))
+            # Only complaing if there really was a loadable checkpoint.
+            if chkpt is not None:
+                print("Failed to load %s." % (chkpt.model_checkpoint_path))
             return False
 
     @property
