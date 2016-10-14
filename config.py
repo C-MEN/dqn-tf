@@ -20,7 +20,7 @@ class AgentConfig(object):
     ep_end_t = memory_size
 
     history_length = 4
-    train_frequency = 4
+    train_frequency = 1
     learn_start = 5. * scale
 
     min_delta = -1
