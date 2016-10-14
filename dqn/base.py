@@ -61,7 +61,7 @@ class BaseModel(object):
         if self._model_dir is None:
             path_parts = []
             for k, v in self._attrs.items():
-                if not k.startswith('_') and k not in ['display']:
+                if not k.startswith('_') and k not in ['display', 'env_name']:
                     path_parts.append("%s-%s" % (k, ",".join([str(i) for i in v])
                                                  if type(v) == list else v))
             # Sort the list of path parts to keep the order stable.
