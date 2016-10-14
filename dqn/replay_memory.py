@@ -7,6 +7,7 @@ class ReplayMemory:
 
     def __init__(self, config, model_dir):
         self.model_dir = model_dir
+        print("ReplayMemory saved at %s." % (self.model_dir))
 
         self.cnn_format = config.cnn_format
         self.memory_size = config.memory_size

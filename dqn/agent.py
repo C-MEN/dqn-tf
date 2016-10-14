@@ -21,7 +21,6 @@ class Agent(BaseModel):
     def __init__(self, config, environment, sess):
         super(Agent, self).__init__(config)
         self.sess = sess
-        self.weight_dir = 'weights'
 
         self.env = environment
         self.history = History(self.config)
@@ -345,7 +344,7 @@ class Agent(BaseModel):
                 self.summary_placeholders[tag] = tf.placeholder(
                     'float32', None, name=tag.replace(' ', '_'))
                 self.summary_ops[tag] = tf.scalar_summary(
-                    "%s-%s/%s" % (self.env_name, self.env_type, tag), self.summary_placeholders[tag])
+                    "%s/%s" % (self.env_name, tag), self.summary_placeholders[tag])
 
             histogram_summary_tags = ['episode.rewards', 'episode.actions']
 
@@ -396,7 +395,7 @@ class Agent(BaseModel):
             for _ in range(self.history_length):
                 test_history.add(screen)
 
-            for t in tqdm(range(n_step), ncols=70):
+            for t in tqdm(range(n_step), ncols=72):
                 # 1. predict
                 action = self.predict(test_history.get(), test_ep)
                 # 2. act
@@ -419,4 +418,13 @@ class Agent(BaseModel):
 
         if not self.display:
             self.env.env.monitor.close()
-            #gym.upload(gym_dir, writeup='https://github.com/devsisters/DQN-tensorflow', api_key='')
+
+    def save_model(self, step=None):
+        super(Agent, self).save_model(step)
+        self.history.save()
+
+    def load_model(self):
+        if super(Agent, self).load_model():
+            # Only try to load the replay memory if we successfully loaded
+            # a checkpoint file.
+            self.history.load()
