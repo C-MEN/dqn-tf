@@ -2,7 +2,7 @@ import random
 import tensorflow as tf
 
 from dqn.agent import Agent
-from dqn.environment import GymEnvironment, SimpleGymEnvironment
+from dqn.environment import GymEnvironment
 from config import get_config
 
 flags = tf.app.flags
@@ -20,8 +20,8 @@ flags.DEFINE_integer('action_repeat', 4, 'The number of action to be repeated')
 flags.DEFINE_boolean('use_gpu', True, 'Whether to use gpu or not')
 flags.DEFINE_string('gpu_fraction', '1/1', 'fraction of GPU memory to allocate')
 flags.DEFINE_boolean('display', False, 'Whether to do display the game screen or not')
-flags.DEFINE_boolean('is_train', True, 'Whether to do training or testing')
-flags.DEFINE_integer('random_seed', 123, 'Value of random seed')
+flags.DEFINE_boolean('train', True, 'Whether to do training or testing')
+flags.DEFINE_integer('random_seed', 13, 'Value of random seed')
 
 FLAGS = flags.FLAGS
 
@@ -40,26 +40,26 @@ def calc_gpu_fraction(fraction_string):
 
 
 def main(_):
+    # Trying to request all the GPU memory will fail, since the system
+    # always allocates a little memory on each GPU for itself. Only set
+    # up a GPU configuration if fractional amount of memory is requested.
     tf_config = None
-    if FLAGS.gpu_fraction != '1/1':
-        gpu_fraction = calc_gpu_fraction(FLAGS.gpu_fraction)
+    gpu_fraction = calc_gpu_fraction(FLAGS.gpu_fraction)
+    if gpu_fraction < 1:
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction)
         tf_config = tf.ConfigProto(gpu_options=gpu_options)
 
     with tf.Session(config=tf_config) as sess:
         config = get_config(FLAGS) or FLAGS
+        env = GymEnvironment(config)
 
-        if config.env_type == 'simple':
-            env = SimpleGymEnvironment(config)
-        else:
-            env = GymEnvironment(config)
-
+        # Change data format for running on a CPU.
         if not FLAGS.use_gpu:
             config.cnn_format = 'NHWC'
 
         agent = Agent(config, env, sess)
 
-        if FLAGS.is_train:
+        if FLAGS.train:
             agent.train()
         else:
             agent.play()

@@ -40,24 +40,15 @@ class EnvironmentConfig(object):
     screen_height = 84
     max_reward = 1.
     min_reward = -1.
+    action_repeat = 1
 
-
+    
 class DQNConfig(AgentConfig, EnvironmentConfig):
-    model = ''
     pass
 
 
-class M1(DQNConfig):
-    backend = 'tf'
-    env_type = 'simple'
-    action_repeat = 1
-
-
 def get_config(FLAGS):
-    if FLAGS.model == 'm1':
-        config = M1
-    elif FLAGS.model == 'm2':
-        config = M2
+    config = DQNConfig
 
     for k, v in FLAGS.__dict__['__flags'].items():
         if k == 'gpu':
