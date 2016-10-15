@@ -24,10 +24,10 @@ class Agent(BaseModel):
 
         self.env = environment
         self.history = History(self.config)
-        self.memory = ReplayMemory(self.config, self.model_dir)
+        self.memory = ReplayMemory(self.config, self.checkpoint_dir)
 
         with tf.variable_scope('step'):
-            self.step_op = tf.Variable(1, trainable=False, name='step')
+            self.step_op = tf.Variable(0, trainable=False, name='step')
             self.step_input = tf.placeholder('int32', None, name='step_input')
             self.step_assign_op = self.step_op.assign(self.step_input)
 
@@ -70,7 +70,7 @@ class Agent(BaseModel):
             actions.append(action)
             total_reward += reward
 
-            if self.step >= self.learn_start:
+            if self.step > self.learn_start:
                 if self.step % self.test_step == 0:
                     avg_reward = total_reward / self.test_step
                     avg_loss = self.total_loss / self.update_count
