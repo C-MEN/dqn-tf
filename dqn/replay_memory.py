@@ -4,7 +4,6 @@ import numpy as np
 
 
 class ReplayMemory:
-
     def __init__(self, config, model_dir):
         self.model_dir = model_dir
         self.cnn_format = config.cnn_format
@@ -25,6 +24,11 @@ class ReplayMemory:
                                   dtype=np.float16)
         self.poststates = np.empty((self.batch_size, self.history_length) + self.dims,
                                    dtype=np.float16)
+
+        self.arrays = dict(zip(
+            ['actions', 'rewards', 'screens', 'terminals', 'prestates', 'poststates'],
+            [self.actions, self.rewards, self.screens, self.terminals, self.prestates, self.poststates]))
+
 
     def add(self, screen, reward, action, terminal):
         assert screen.shape == self.dims
@@ -86,13 +90,10 @@ class ReplayMemory:
             return self.prestates, actions, rewards, self.poststates, terminals
 
     def save(self):
-        for idx, (name, array) in enumerate(
-            zip(['actions', 'rewards', 'screens', 'terminals', 'prestates', 'poststates'],
-                [self.actions, self.rewards, self.screens, self.terminals, self.prestates, self.poststates])):
-            np.save(array, os.path.join(self.model_dir, name))
+        np.savez(os.path.join(self.model_dir, "memory"), **self.arrays)
 
     def load(self):
-        for idx, (name, array) in enumerate(
-            zip(['actions', 'rewards', 'screens', 'terminals', 'prestates', 'poststates'],
-                [self.actions, self.rewards, self.screens, self.terminals, self.prestates, self.poststates])):
-            array = np.load(os.path.join(self.model_dir, name))
+        fname = os.path.join(self.model_dir, "memory.npz")
+        npzfiles = np.load(fname)
+        for name, array in self.arrays:
+            array = npzfiles[name]
