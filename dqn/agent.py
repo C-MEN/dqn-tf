@@ -27,7 +27,7 @@ class Agent(BaseModel):
         self.memory = ReplayMemory(self.config, self.model_dir)
 
         with tf.variable_scope('step'):
-            self.step_op = tf.Variable(0, trainable=False, name='step')
+            self.step_op = tf.Variable(1, trainable=False, name='step')
             self.step_input = tf.placeholder('int32', None, name='step_input')
             self.step_assign_op = self.step_op.assign(self.step_input)
 
@@ -39,7 +39,6 @@ class Agent(BaseModel):
 
         num_game, self.update_count, ep_reward = 0, 0, 0.
         total_reward, self.total_loss, self.total_q = 0., 0., 0.
-        max_avg_ep_reward = 0
         ep_rewards, actions = [], []
 
         screen, reward, action, terminal = self.env.new_random_game()
@@ -72,7 +71,7 @@ class Agent(BaseModel):
             total_reward += reward
 
             if self.step >= self.learn_start:
-                if self.step % self.test_step == self.test_step - 1:
+                if self.step % self.test_step == 0:
                     avg_reward = total_reward / self.test_step
                     avg_loss = self.total_loss / self.update_count
                     avg_q = self.total_q / self.update_count
@@ -87,13 +86,8 @@ class Agent(BaseModel):
                     print('\navg_r: %.4f, avg_l: %.6f, avg_q: %3.6f, avg_ep_r: %.4f, max_ep_r: %.4f, min_ep_r: %.4f, # game: %d'
                           % (avg_reward, avg_loss, avg_q, avg_ep_reward, max_ep_reward, min_ep_reward, num_game))
 
-                    if max_avg_ep_reward * 0.9 <= avg_ep_reward:
-                        self.step_assign_op.eval(
-                            {self.step_input: self.step + 1})
-                        self.save_model(self.step + 1)
-
-                        max_avg_ep_reward = max(
-                            max_avg_ep_reward, avg_ep_reward)
+                    self.step_assign_op.eval({self.step_input: self.step + 1})
+                    self.save_model(self.step + 1)
 
                     if self.step > 180:
                         self.inject_summary({
